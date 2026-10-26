@@ -1,0 +1,6 @@
+---
+title: "Analyzing US Census Data"
+author: Solenia Suarez
+format: html
+---
+
