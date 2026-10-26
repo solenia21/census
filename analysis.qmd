@@ -54,22 +54,35 @@ edu_state <- get_acs(
 ```
 
 ```{r}
-edu_state |>
-  filter(variable %in% c("B15003_022", "B15003_023", "B15003_024", "B15003_025")) |>
-  group_by(GEOID, NAME) |>
-  summarize(
-    percent_bachelors_or_higher = sum(estimate) / first(summary_est) * 100,
-    .groups = "drop"
-  ) |>
-  ggplot(aes(
-    x = percent_bachelors_or_higher,
-    y = fct_reorder(NAME, percent_bachelors_or_higher)
-  )) +
-  geom_col() +
-  labs(
-    title = "Adults with a Bachelor's Degree or Higher by State",
-    x = "Adults with a bachelor's degree or higher (%)",
-    y = NULL
-  ) +
-  theme_minimal()
+#| message: false
+age_ca <- get_acs(
+  geography = "county",
+  variables = c(
+    median_age = "B01002_001",
+    population = "B01003_001"
+  ),
+  state = "CA",
+  year = 2020,
+  geometry = FALSE
+)
+```
+
+```{r}
+#| message: false
+age_ca <- get_acs(
+  geography = "county",
+  variables = c(median_age = "B01002_001", population = "B01003_001"),
+  state = "CA",
+  year = 2020,
+  geometry = FALSE
+)
+```
+
+```{r}
+age_ca_wide <- age_ca |>
+  select(NAME, variable, estimate) |>
+  pivot_wider(names_from = variable, values_from = estimate) |>
+  arrange(desc(population))
+
+print(age_ca_wide, n = Inf)
 ```
