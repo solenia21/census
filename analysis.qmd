@@ -27,18 +27,49 @@ income_tx <- get_acs(
 ```
 
 ```{r}
-ggplot(income_tx) +
-  geom_sf(aes(fill = estimate)) +
-  scale_fill_gradient(
-    low = "white",
-    high = "red",
-    name = "Median household income",
-    labels = scales::label_dollar()
-  ) +
+#| message: false
+edu_state <- get_acs(
+  geography = "state",
+  variables = c(
+    total = "B15003_001",
+    bachelors = "B15003_022",
+    masters = "B15003_023",
+    professional = "B15003_024",
+    doctorate = "B15003_025"
+  ),
+  summary_var = "B15003_001",
+  year = 2020
+)
+```
+
+```{r}
+#| message: false
+edu_state <- get_acs(
+  geography = "state",
+  variables = c("B15003_001", "B15003_022", "B15003_023", "B15003_024", "B15003_025"),
+  year = 2020,
+  geometry = FALSE,
+  summary_var = "B15003_001"
+)
+```
+
+```{r}
+edu_state |>
+  filter(variable %in% c("B15003_022", "B15003_023", "B15003_024", "B15003_025")) |>
+  group_by(GEOID, NAME) |>
+  summarize(
+    percent_bachelors_or_higher = sum(estimate) / first(summary_est) * 100,
+    .groups = "drop"
+  ) |>
+  ggplot(aes(
+    x = percent_bachelors_or_higher,
+    y = fct_reorder(NAME, percent_bachelors_or_higher)
+  )) +
+  geom_col() +
   labs(
-    title = "Median Household Income by County",
-    subtitle = "Texas, 2020",
-    caption = "Source: U.S. Census Bureau, 2020 American Community Survey (ACS) 5-year estimates"
+    title = "Adults with a Bachelor's Degree or Higher by State",
+    x = "Adults with a bachelor's degree or higher (%)",
+    y = NULL
   ) +
-  theme_void()
+  theme_minimal()
 ```
