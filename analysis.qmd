@@ -2,5 +2,43 @@
 title: "Analyzing US Census Data"
 author: Solenia Suarez
 format: html
+execute:
+  echo: false
 ---
 
+
+```{r}
+#| message: false
+library(tidyverse)
+library(tidycensus)
+library(sf)
+```
+
+```{r}
+#| message: false
+#| cache: true
+income_tx <- get_acs(
+  geography = "county",
+  variables = "B19013_001",
+  state = "TX",
+  year = 2020,
+  geometry = TRUE
+)
+```
+
+```{r}
+ggplot(income_tx) +
+  geom_sf(aes(fill = estimate)) +
+  scale_fill_gradient(
+    low = "white",
+    high = "red",
+    name = "Median household income",
+    labels = scales::label_dollar()
+  ) +
+  labs(
+    title = "Median Household Income by County",
+    subtitle = "Texas, 2020",
+    caption = "Source: U.S. Census Bureau, 2020 American Community Survey (ACS) 5-year estimates"
+  ) +
+  theme_void()
+```
